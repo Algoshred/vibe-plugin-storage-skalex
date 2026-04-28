@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "description": "Skalex storage provider for the VibeControls agent — document-oriented, file-backed, AES-256-GCM encryption at rest.",
+  "description": "Skalex storage provider for the VibeControls agent \u2014 document-oriented, file-backed, AES-256-GCM encryption at rest.",
   "engines": {
     "bun": ">=1.3.0"
   },
@@ -33,7 +33,6 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.0.0",
-    "@vibecontrols/vibe-plugin-storage": "file:../vibe-plugin-storage",
     "bun-types": "^1.3.9",
     "eslint": "^9.30.1",
     "globals": "^17.3.0",
@@ -43,6 +42,7 @@
     "typescript-eslint": "^8.56.0"
   },
   "peerDependencies": {
+    "@vibecontrols/vibe-plugin-storage": "^2026.428.3",
     "@vibecontrols/agent": ">=2026.428.0"
   },
   "peerDependenciesMeta": {
@@ -69,7 +69,7 @@
   "homepage": "https://vibecontrols.com",
   "publishConfig": {
     "access": "restricted",
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://verdaccio.tooling.internal.burdenoff.com/"
   },
   "files": [
     "dist/**/*",
