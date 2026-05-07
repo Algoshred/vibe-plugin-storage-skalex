@@ -21,7 +21,18 @@ import "./skalex.adapter.js";
 
 export { createSkalexAgentDatabase } from "./skalex.adapter.js";
 
+interface PluginCapabilities {
+  storage?: "none" | "read" | "rw";
+  secrets?: "none" | "read" | "rw";
+  gateway?: boolean;
+  broadcast?: boolean;
+  subprocess?: boolean;
+  audit?: boolean;
+  telemetry?: boolean;
+}
+
 interface MinimalVibePlugin {
+  capabilities?: PluginCapabilities;
   name: string;
   version: string;
   description?: string;
@@ -29,6 +40,10 @@ interface MinimalVibePlugin {
 }
 
 export const vibePlugin: MinimalVibePlugin = {
+  capabilities: {
+    storage: "rw",
+    secrets: "read",
+  },
   name: "storage-skalex",
   version: "1.0.0",
   description:

@@ -1,6 +1,6 @@
 {
   "name": "@vibecontrols/vibe-plugin-storage-skalex",
-  "version": "2026.429.5",
+  "version": "2026.508.2",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
