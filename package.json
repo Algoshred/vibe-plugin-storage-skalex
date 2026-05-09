@@ -1,6 +1,6 @@
 {
   "name": "@vibecontrols/vibe-plugin-storage-skalex",
-  "version": "2026.509.3",
+  "version": "2026.509.4",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -43,7 +43,7 @@
     "typescript-eslint": "^8.56.0"
   },
   "peerDependencies": {
-    "@vibecontrols/vibe-plugin-storage": "2026.508.5",
+    "@vibecontrols/vibe-plugin-storage": "2026.509.5",
     "@vibecontrols/agent": ">=2026.428.0"
   },
   "peerDependenciesMeta": {
