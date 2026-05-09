@@ -9,8 +9,8 @@
  * this package at startup — it is NOT meant to be installed at runtime
  * via the plugin manager.
  *
- * The exported `vibePlugin` factory mirrors the SDK v2 contract so the
- * agent's plugin loader can drive lifecycle hooks (onServerStart /
+ * The exported `createPlugin(ctx)` factory implements the SDK v2 contract
+ * so the agent's plugin loader can drive lifecycle hooks (onServerStart /
  * onServerStop). On start we additionally announce the adapter on the
  * host's `ProviderRegistry` (type: "storage", name: "skalex"). The
  * existing `registerAdapter()` side-effect import below keeps backwards
@@ -36,7 +36,7 @@ import { createSkalexAgentDatabase } from "./skalex.adapter.js";
 export { createSkalexAgentDatabase } from "./skalex.adapter.js";
 
 const PLUGIN_NAME = "storage-skalex";
-const PLUGIN_VERSION = "2026.509.2";
+const PLUGIN_VERSION = "2026.509.3";
 
 export const createPlugin: VibePluginFactory = (
   ctx: ProfileContext,
@@ -75,24 +75,6 @@ export const createPlugin: VibePluginFactory = (
     onServerStart: lifecycle.onServerStart,
     onServerStop: lifecycle.onServerStop,
   };
-};
-
-/**
- * Static manifest export — kept for the agent's defensive plugin loader
- * that reads `vibePlugin` directly without invoking the factory.
- * Lifecycle hooks here are no-ops; real registration happens via the
- * factory above.
- */
-export const vibePlugin: VibePlugin = {
-  name: PLUGIN_NAME,
-  version: PLUGIN_VERSION,
-  description:
-    "Skalex encrypted storage adapter (bundled with the agent; registers via side-effect import).",
-  tags: ["backend", "adapter", "provider"],
-  capabilities: {
-    storage: "rw",
-    secrets: "read",
-  },
 };
 
 export default createPlugin;
