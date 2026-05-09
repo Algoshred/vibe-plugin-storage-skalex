@@ -9,44 +9,90 @@
  * this package at startup — it is NOT meant to be installed at runtime
  * via the plugin manager.
  *
- * The `vibePlugin` manifest below is a no-op stub kept for defensive
- * compatibility: if some operator does run `vibe plugin install
- * @vibecontrols/vibe-plugin-storage-skalex`, the agent's plugin loader
- * will accept it (the side-effect import already registered the adapter
- * on the first load when the agent booted).
+ * The exported `vibePlugin` factory mirrors the SDK v2 contract so the
+ * agent's plugin loader can drive lifecycle hooks (onServerStart /
+ * onServerStop). On start we additionally announce the adapter on the
+ * host's `ProviderRegistry` (type: "storage", name: "skalex"). The
+ * existing `registerAdapter()` side-effect import below keeps backwards
+ * compatibility with the `vibe-plugin-storage` peer registry.
  */
+
+import {
+  type HostServices,
+  type ProfileContext,
+  type VibePlugin,
+  type VibePluginFactory,
+} from "@vibecontrols/plugin-sdk/contract";
+import { createLifecycleHooks } from "@vibecontrols/plugin-sdk/lifecycle";
+import { BoundLogger } from "@vibecontrols/plugin-sdk/log";
+import { ProviderRegistry } from "@vibecontrols/plugin-sdk/providers";
+import { TelemetryEmitter } from "@vibecontrols/plugin-sdk/telemetry";
 
 // Side-effect: register the "skalex" adapter on import.
 import "./skalex.adapter.js";
 
+import { createSkalexAgentDatabase } from "./skalex.adapter.js";
+
 export { createSkalexAgentDatabase } from "./skalex.adapter.js";
 
-interface PluginCapabilities {
-  storage?: "none" | "read" | "rw";
-  secrets?: "none" | "read" | "rw";
-  gateway?: boolean;
-  broadcast?: boolean;
-  subprocess?: boolean;
-  audit?: boolean;
-  telemetry?: boolean;
-}
+const PLUGIN_NAME = "storage-skalex";
+const PLUGIN_VERSION = "2026.509.2";
 
-interface MinimalVibePlugin {
-  capabilities?: PluginCapabilities;
-  name: string;
-  version: string;
-  description?: string;
-  tags?: ("backend" | "frontend" | "cli" | "provider" | "adapter" | "integration")[];
-}
+export const createPlugin: VibePluginFactory = (
+  ctx: ProfileContext,
+): VibePlugin => {
+  const log = new BoundLogger(ctx.logger, PLUGIN_NAME);
+  const lifecycle = createLifecycleHooks({
+    name: PLUGIN_NAME,
+    telemetryEventName: "storage-skalex.ready",
+    onInit: (hostServices: HostServices) => {
+      const providers = new ProviderRegistry(hostServices);
+      providers.registerProvider(
+        "storage",
+        "skalex",
+        createSkalexAgentDatabase,
+      );
+      const telemetry = new TelemetryEmitter(
+        PLUGIN_NAME,
+        PLUGIN_VERSION,
+        hostServices,
+      );
+      telemetry.emit("storage-skalex.registered", { adapter: "skalex" });
+      log.info("skalex storage adapter registered with host ProviderRegistry");
+    },
+  });
 
-export const vibePlugin: MinimalVibePlugin = {
+  return {
+    name: PLUGIN_NAME,
+    version: PLUGIN_VERSION,
+    description:
+      "Skalex encrypted storage adapter (bundled with the agent; registers via side-effect import).",
+    tags: ["backend", "adapter", "provider"],
+    capabilities: {
+      storage: "rw",
+      secrets: "read",
+    },
+    onServerStart: lifecycle.onServerStart,
+    onServerStop: lifecycle.onServerStop,
+  };
+};
+
+/**
+ * Static manifest export — kept for the agent's defensive plugin loader
+ * that reads `vibePlugin` directly without invoking the factory.
+ * Lifecycle hooks here are no-ops; real registration happens via the
+ * factory above.
+ */
+export const vibePlugin: VibePlugin = {
+  name: PLUGIN_NAME,
+  version: PLUGIN_VERSION,
+  description:
+    "Skalex encrypted storage adapter (bundled with the agent; registers via side-effect import).",
+  tags: ["backend", "adapter", "provider"],
   capabilities: {
     storage: "rw",
     secrets: "read",
   },
-  name: "storage-skalex",
-  version: "1.0.0",
-  description:
-    "Skalex encrypted storage adapter (bundled with the agent; registers via side-effect import).",
-  tags: ["backend", "adapter", "provider"],
 };
+
+export default createPlugin;

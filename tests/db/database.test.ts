@@ -36,7 +36,9 @@ const KEY = "f".repeat(64); // 32 bytes of 0xff
 describe("AgentDatabase factory", () => {
   it("throws when no encryption key is provided", async () => {
     await expect(
-      createAgentDatabase({ dbPath: tmpdir() } as Parameters<typeof createAgentDatabase>[0]),
+      createAgentDatabase({ dbPath: tmpdir() } as Parameters<
+        typeof createAgentDatabase
+      >[0]),
     ).rejects.toThrow(/encryptionKey is required/);
   });
 
