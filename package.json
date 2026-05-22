@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "description": "Skalex storage provider for the VibeControls agent \u2014 document-oriented, file-backed, AES-256-GCM encryption at rest.",
   "engines": {
-    "bun": ">=1.3.0"
+    "bun": ">=1.3.14"
   },
   "author": {
     "name": "Vignesh T.V",
