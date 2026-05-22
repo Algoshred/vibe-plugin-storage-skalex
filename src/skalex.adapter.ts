@@ -354,6 +354,39 @@ export class SkalexAgentDatabase extends AgentDatabase {
     return this.dataDir;
   }
 
+  // ── Backup ──────────────────────────────────────────────────────────
+
+  /**
+   * Skalex persists each collection as one ciphertext+gzip file under
+   * `dataDir`. Snapshot = tar of the entire directory. We shell out to
+   * `tar` because Bun ships it via the OS and a single binary stream
+   * keeps the result deterministic + hashable. The caller is responsible
+   * for unlinking the result.
+   */
+  async backup(targetPath: string): Promise<void> {
+    // Skalex collections are written-through on every mutation, so a
+    // straight tar is safe — there is no separate in-memory journal to
+    // flush. We exclude the lockfile so two consecutive backups produce
+    // byte-identical archives for the unchanged case.
+    const proc = Bun.spawn(
+      [
+        "tar",
+        "-czf",
+        targetPath,
+        "--exclude=.agent-db.lock",
+        "-C",
+        this.dataDir,
+        ".",
+      ],
+      { stdout: "pipe", stderr: "pipe" },
+    );
+    const exitCode = await proc.exited;
+    if (exitCode !== 0) {
+      const err = await new Response(proc.stderr).text();
+      throw new Error(`Skalex backup failed (exit ${exitCode}): ${err}`);
+    }
+  }
+
   // ── Task Methods ────────────────────────────────────────────────────
 
   async createTask(task: Omit<Task, "createdAt" | "updatedAt">): Promise<Task> {
