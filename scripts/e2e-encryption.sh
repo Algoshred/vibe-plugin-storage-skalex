@@ -34,9 +34,9 @@
 #   AGENT_PORT                  default: 3005
 #
 # This script does NOT start or stop state services / backend / gateways.
-# Those are expected to be running already (typically via `make up` in
-# ~/products/dev/ or per-repo docker compose). If they aren't, the script
-# will fail at step 2 with a clear error telling you what's missing.
+# Those are expected to be running already (e.g. via your local
+# docker-compose stack). If they aren't, the script will fail at step 2
+# with a clear error telling you what's missing.
 
 set -euo pipefail
 
