@@ -18,7 +18,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, relative, sep } from "node:path";
 import Skalex from "skalex";
 import type { Collection } from "skalex";
 
@@ -368,9 +368,17 @@ export class SkalexAgentDatabase extends AgentDatabase {
     // straight tar is safe — there is no separate in-memory journal to
     // flush. We exclude the lockfile so two consecutive backups produce
     // byte-identical archives for the unchanged case.
+    //
+    // `tar` ships natively on POSIX and on Windows 10 1803+ (as tar.exe).
+    // Resolve it on PATH first so we fail with a clear error instead of
+    // spawning a missing binary on stripped-down hosts.
+    const tarPath = Bun.which("tar", { PATH: process.env.PATH });
+    if (tarPath == null) {
+      throw new Error("tar not found on PATH - required for backup/export");
+    }
     const proc = Bun.spawn(
       [
-        "tar",
+        tarPath,
         "-czf",
         targetPath,
         "--exclude=.agent-db.lock",
@@ -562,12 +570,22 @@ export class SkalexAgentDatabase extends AgentDatabase {
     let fixed = 0;
     for (const repo of repos) {
       if (repo.isSubmodule) continue;
-      const parent = repos.find(
-        (r) =>
-          r.id !== repo.id &&
-          repo.path.startsWith(`${r.path}/`) &&
-          !r.isSubmodule,
-      );
+      const parent = repos.find((r) => {
+        if (r.id === repo.id || r.isSubmodule) return false;
+        // `repo.path` / `r.path` are real OS filesystem paths (resolved by
+        // the agent's git scanner), so use node:path to test strict nesting.
+        // This matches the old `repo.path.startsWith(`${r.path}/`)` for the
+        // normalized paths the scanner produces, while also handling Windows
+        // backslash separators. A child path yields a relative path that is
+        // neither empty, "..", absolute, nor "../"-prefixed.
+        const rel = relative(r.path, repo.path);
+        return (
+          rel !== "" &&
+          rel !== ".." &&
+          !rel.startsWith(`..${sep}`) &&
+          !isAbsolute(rel)
+        );
+      });
       if (parent && repo.parentPath !== parent.path) {
         await this.updateGitRepository(repo.id, { parentPath: parent.path });
         fixed++;
