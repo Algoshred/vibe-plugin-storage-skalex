@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@vibecontrols/plugin-sdk": "2026.509.2",
-    "skalex": "4.0.0-alpha.2"
+    "skalex": "4.0.0-alpha.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
