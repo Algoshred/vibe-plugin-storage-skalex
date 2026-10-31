@@ -27,13 +27,13 @@
     "sanity": "bash scripts/build-limits.sh --gate bash -c 'bun run format:check && bun run lint && bun run type:check && bun run test && bun run build'"
   },
   "dependencies": {
-    "@vibecontrols/plugin-sdk": "2026.509.2",
+    "@vibecontrols/plugin-sdk": "2026.601.1",
     "skalex": "4.0.0-alpha.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.0.0",
-    "@vibecontrols/vibe-plugin-storage": "2026.509.6",
+    "@vibecontrols/vibe-plugin-storage": "2026.601.1",
     "bun-types": "^1.3.9",
     "eslint": "^9.30.1",
     "globals": "^17.3.0",
