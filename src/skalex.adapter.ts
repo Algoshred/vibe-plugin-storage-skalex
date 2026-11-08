@@ -73,13 +73,14 @@ const pluginStateId = (pluginName: string, key: string): string =>
 function cleanDoc<T>(doc: Record<string, unknown> | null | undefined): T {
   if (!doc) return doc as T;
   const {
-    _id: _ignoredId,
     createdAt: rawCreatedAt,
     updatedAt: rawUpdatedAt,
-    _version: _ignoredVersion,
-    _expiresAt: _ignoredExpires,
     ...rest
   } = doc as Record<string, unknown>;
+  // Drop the Skalex-internal bookkeeping fields.
+  delete rest._id;
+  delete rest._version;
+  delete rest._expiresAt;
   // Skalex stores createdAt/updatedAt as Date; our Task/Notification etc.
   // expose them as ISO strings. Prefer the doc's own field if it already
   // carries a string (e.g. when we explicitly wrote one), else format the
