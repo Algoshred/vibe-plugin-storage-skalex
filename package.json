@@ -29,13 +29,13 @@
     "audit": "bun audit --audit-level=high"
   },
   "dependencies": {
-    "@vibecontrols/plugin-sdk": "2026.509.2",
+    "@vibecontrols/plugin-sdk": "2026.601.1",
     "skalex": "4.0.0-alpha.2"
   },
   "devDependencies": {
     "@burdenoff/toolchain": "2026.1107.14",
     "@types/bun": "^1.4.4",
-    "@vibecontrols/vibe-plugin-storage": "2026.509.6",
+    "@vibecontrols/vibe-plugin-storage": "2026.601.1",
     "eslint": "^9.39.5",
     "knip": "^6.44.1",
     "rimraf": "^6.1.4",
